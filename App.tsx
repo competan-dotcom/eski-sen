@@ -49,7 +49,7 @@ interface GeneratedImage {
     error?: string;
 }
 type FeedbackState = 'like' | 'unlike' | null;
-type GenerationStyle = 'strict' | 'creative' | 'turkish';
+type GenerationStyle = 'strict' | 'creative';
 
 const ThemedLoader = () => (
     <svg
@@ -134,8 +134,6 @@ function App() {
                 return `Reimagine the person in this photo in the style of the ${decade}. It is crucial to maintain the person's core facial features and identity as closely as possible. This includes clothing, hairstyle, photo quality, and the overall aesthetic of that decade. The output must be a photorealistic image showing the person clearly.`;
             case 'creative':
                 return `Take creative inspiration from the person in this photo to create a new portrait in the style of the ${decade}. The new image should reflect the fashion, hairstyles, and overall atmosphere of that era, with artistic freedom to reinterpret the person's appearance. The output must be a photorealistic image.`;
-            case 'turkish':
-                return `Reimagine the person in this photo in the style of the ${decade} in Turkey, with a "Turkish style". Incorporate authentic Turkish fashion, hairstyles, and aesthetics from that era. Think about Turkish Yeşilçam movies, popular musicians like Barış Manço or Ajda Pekkan, and everyday life in Turkey during the ${decade}. Maintain the person's core facial features but place them convincingly into a Turkish context of the time. The output must be a photorealistic image showing the person clearly.`;
         }
     };
 
@@ -389,17 +387,10 @@ function App() {
                                     >
                                         Yaratıcı Yorum
                                     </button>
-                                    <button 
-                                        onClick={() => setGenerationStyle('turkish')}
-                                        className={`py-2 px-4 rounded-full transition-colors duration-300 ${generationStyle === 'turkish' ? 'bg-white text-black' : 'text-white/80'}`}
-                                    >
-                                        Turkish Stayl ✨
-                                    </button>
                                 </div>
                                 <p className="font-permanent-marker text-base text-neutral-800 mt-2 text-center h-8">
                                     {generationStyle === 'strict' && "Yüz hatların her fotografta korunur."}
                                     {generationStyle === 'creative' && "Yapay zeka her dönem için seni bastan yorumlar."}
-                                    {generationStyle === 'turkish' && "Her dönemin ruhu Türkiye'den ilhamla yansıtılır."}
                                 </p>
                             </div>
                             <div className="flex items-center gap-4 mt-2">
