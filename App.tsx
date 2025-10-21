@@ -49,6 +49,7 @@ interface GeneratedImage {
     error?: string;
 }
 type FeedbackState = 'like' | 'unlike' | null;
+type GenerationStyle = 'strict' | 'creative' | 'turkish';
 
 const ThemedLoader = () => (
     <svg
@@ -106,7 +107,7 @@ function App() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
     const [appState, setAppState] = useState<'idle' | 'image-uploaded' | 'generating' | 'results-shown'>('idle');
-    const [isStrictConsistency, setIsStrictConsistency] = useState<boolean>(true);
+    const [generationStyle, setGenerationStyle] = useState<GenerationStyle>('strict');
     const [fatalError, setFatalError] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<Record<string, FeedbackState>>({});
     const dragAreaRef = useRef<HTMLDivElement>(null);
@@ -128,10 +129,13 @@ function App() {
     };
 
     const getPromptForDecade = (decade: string): string => {
-        if (isStrictConsistency) {
-            return `Reimagine the person in this photo in the style of the ${decade}. It is crucial to maintain the person's core facial features and identity as closely as possible. This includes clothing, hairstyle, photo quality, and the overall aesthetic of that decade. The output must be a photorealistic image showing the person clearly.`;
-        } else {
-            return `Take creative inspiration from the person in this photo to create a new portrait in the style of the ${decade}. The new image should reflect the fashion, hairstyles, and overall atmosphere of that era, with artistic freedom to reinterpret the person's appearance. The output must be a photorealistic image.`;
+        switch (generationStyle) {
+            case 'strict':
+                return `Reimagine the person in this photo in the style of the ${decade}. It is crucial to maintain the person's core facial features and identity as closely as possible. This includes clothing, hairstyle, photo quality, and the overall aesthetic of that decade. The output must be a photorealistic image showing the person clearly.`;
+            case 'creative':
+                return `Take creative inspiration from the person in this photo to create a new portrait in the style of the ${decade}. The new image should reflect the fashion, hairstyles, and overall atmosphere of that era, with artistic freedom to reinterpret the person's appearance. The output must be a photorealistic image.`;
+            case 'turkish':
+                return `Reimagine the person in this photo in the style of the ${decade} in Turkey, with a "Turkish style". Incorporate authentic Turkish fashion, hairstyles, and aesthetics from that era. Think about Turkish Yeşilçam movies, popular musicians like Barış Manço or Ajda Pekkan, and everyday life in Turkey during the ${decade}. Maintain the person's core facial features but place them convincingly into a Turkish context of the time. The output must be a photorealistic image showing the person clearly.`;
         }
     };
 
@@ -231,9 +235,11 @@ function App() {
 
     const handleDownloadIndividualImage = (decade: string) => {
         const image = generatedImages[decade];
-        if (image?.status === 'done' && image.url) {
+        // FIX: Cast image to GeneratedImage to resolve TypeScript error about 'unknown' type.
+        const typedImage = image as GeneratedImage;
+        if (typedImage && typedImage.status === 'done' && typedImage.url) {
             const link = document.createElement('a');
-            link.href = image.url;
+            link.href = typedImage.url;
             link.download = `eski-sen-${decade}.jpg`;
             document.body.appendChild(link);
             link.click();
@@ -245,9 +251,13 @@ function App() {
         setIsDownloading(true);
         try {
             const imageData = Object.entries(generatedImages)
-                .filter(([, image]) => image.status === 'done' && image.url)
+                // FIX: Cast image to GeneratedImage to resolve TypeScript error about 'unknown' type.
+                .filter(([, image]) => {
+                    const typedImage = image as GeneratedImage;
+                    return typedImage && typedImage.status === 'done' && typedImage.url;
+                })
                 .reduce((acc, [decade, image]) => {
-                    acc[decade] = image!.url!;
+                    acc[decade] = (image as GeneratedImage).url!;
                     return acc;
                 }, {} as Record<string, string>);
 
@@ -285,7 +295,8 @@ function App() {
         });
     };
 
-    const showInitialLoader = appState === 'generating' && !Object.values(generatedImages).some(img => img.status !== 'pending');
+    // Fix: Cast 'img' to GeneratedImage to access 'status' property, as Object.values infers it as 'unknown' in this context.
+    const showInitialLoader = appState === 'generating' && !Object.values(generatedImages).some(img => (img as GeneratedImage).status !== 'pending');
 
     return (
         <>
@@ -310,7 +321,7 @@ function App() {
             <main className="bg-yellow-500 text-black min-h-screen w-full flex flex-col items-center p-4 overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.05]"></div>
                 
-                <div className="z-10 text-center mb-10 flex-shrink-0">
+                <div className="z-10 text-center mb-6 flex-shrink-0">
                     <h1 className="text-6xl md:text-8xl font-caveat font-bold text-black">eski'sen</h1>
                     <p className="font-permanent-marker text-neutral-800 mt-2 text-xl tracking-wide lowercase">(seni zaman tünelinde bir yolculuga çıkarıyoruz)</p>
                 </div>
@@ -367,22 +378,28 @@ function App() {
                              <div className="flex flex-col items-center gap-2 my-2">
                                 <div className="bg-black/20 p-1 rounded-full flex items-center text-sm font-permanent-marker">
                                     <button 
-                                        onClick={() => setIsStrictConsistency(true)}
-                                        className={`py-2 px-5 rounded-full transition-colors duration-300 ${isStrictConsistency ? 'bg-white text-black' : 'text-white/80'}`}
+                                        onClick={() => setGenerationStyle('strict')}
+                                        className={`py-2 px-4 rounded-full transition-colors duration-300 ${generationStyle === 'strict' ? 'bg-white text-black' : 'text-white/80'}`}
                                     >
                                         Birebir Benzerlik
                                     </button>
                                     <button 
-                                        onClick={() => setIsStrictConsistency(false)}
-                                        className={`py-2 px-5 rounded-full transition-colors duration-300 ${!isStrictConsistency ? 'bg-white text-black' : 'text-white/80'}`}
+                                        onClick={() => setGenerationStyle('creative')}
+                                        className={`py-2 px-4 rounded-full transition-colors duration-300 ${generationStyle === 'creative' ? 'bg-white text-black' : 'text-white/80'}`}
                                     >
                                         Yaratıcı Yorum
                                     </button>
+                                    <button 
+                                        onClick={() => setGenerationStyle('turkish')}
+                                        className={`py-2 px-4 rounded-full transition-colors duration-300 ${generationStyle === 'turkish' ? 'bg-white text-black' : 'text-white/80'}`}
+                                    >
+                                        Turkish Stayl ✨
+                                    </button>
                                 </div>
                                 <p className="font-permanent-marker text-base text-neutral-800 mt-2 text-center h-8">
-                                    {isStrictConsistency 
-                                        ? "Yüz hatların her fotografta korunur." 
-                                        : "Yapay zeka her dönem için seni bastan yorumlar."}
+                                    {generationStyle === 'strict' && "Yüz hatların her fotografta korunur."}
+                                    {generationStyle === 'creative' && "Yapay zeka her dönem için seni bastan yorumlar."}
+                                    {generationStyle === 'turkish' && "Her dönemin ruhu Türkiye'den ilhamla yansıtılır."}
                                 </p>
                             </div>
                             <div className="flex items-center gap-4 mt-2">
@@ -502,7 +519,7 @@ function App() {
                         </div>
                     )}
                 </div>
-                 <footer className="w-full text-center py-4 z-10 flex-shrink-0">
+                 <footer className="w-full text-center py-2 z-10 flex-shrink-0">
                     <p className="font-caveat text-1xl text-neutral-800">
                         {" "}
                         <a
