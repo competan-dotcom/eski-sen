@@ -86,32 +86,27 @@ const RegeneratingOverlay = () => (
 
 const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, error, dragConstraintsRef, onShake, onDownload, feedback, onFeedback, isMobile, isDraggable, className }) => {
     const [isDeveloped, setIsDeveloped] = useState(false);
-    const [isImageLoaded, setIsImageLoaded] = useState(false);
     const lastShakeTime = useRef(0);
     const lastVelocity = useRef({ x: 0, y: 0 });
     const isRegenerating = status === 'pending' && (!!imageUrl || !!error);
 
-    // Reset states when the image URL changes or status goes to pending.
+    // Simplified and more reliable effect for the "developing" animation.
+    // It no longer depends on the `onLoad` event, which was unreliable on mobile.
+    // Instead, it triggers whenever a new image is ready to be displayed.
     useEffect(() => {
-        if (status === 'pending' && !isRegenerating) {
+        if (imageUrl && status === 'done') {
+            // Immediately set to not-developed to show the chemical overlay for the animation.
             setIsDeveloped(false);
-            setIsImageLoaded(false);
-        }
-        if (status === 'done' && imageUrl) {
-            setIsDeveloped(false);
-            setIsImageLoaded(false);
-        }
-    }, [imageUrl, status, isRegenerating]);
 
-    // When the image is loaded, start the developing animation.
-    useEffect(() => {
-        if (isImageLoaded) {
+            // Use a short timeout to ensure React renders the initial state
+            // before we trigger the animation, making the effect visible.
             const timer = setTimeout(() => {
                 setIsDeveloped(true);
-            }, 200); // Short delay before animation starts
+            }, 100);
+
             return () => clearTimeout(timer);
         }
-    }, [isImageLoaded]);
+    }, [imageUrl, status]);
 
     const handleDragStart = () => {
         // Reset velocity on new drag to prevent false triggers from old data
@@ -241,7 +236,6 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, 
                                     key={imageUrl}
                                     src={imageUrl}
                                     alt={caption}
-                                    onLoad={() => setIsImageLoaded(true)}
                                     className={`w-full h-full object-cover transition-all duration-[4000ms] ease-in-out ${
                                         isDeveloped 
                                         ? 'opacity-100 filter-none' 
