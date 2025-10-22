@@ -247,7 +247,6 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, 
                                         ? 'opacity-100 filter-none' 
                                         : 'opacity-80 filter sepia(1) contrast(0.8) brightness(0.8)'
                                     }`}
-                                    style={{ opacity: isImageLoaded ? undefined : 0 }}
                                 />
                             </>
                         )}
