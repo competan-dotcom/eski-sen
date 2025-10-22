@@ -149,7 +149,7 @@ function App() {
         });
         setGeneratedImages(initialImages);
 
-        const concurrencyLimit = 2; // Process two decades at a time
+        const concurrencyLimit = 3; // Process three decades at a time
         const decadesQueue = [...DECADES];
 
         const processDecade = async (decade: string) => {
@@ -366,12 +366,13 @@ function App() {
                     )}
 
                     {appState === 'image-uploaded' && uploadedImage && (
-                        <div className="flex flex-col items-center gap-6">
+                        <div className="flex flex-col items-center gap-4 md:gap-6">
                             <PolaroidCard 
                                 imageUrl={uploadedImage} 
                                 caption="fotografın" 
                                 status="done"
                                 isDraggable={false}
+                                className={isMobile ? "!w-72" : ""}
                             />
                              <div className="flex flex-col items-center gap-2 my-2">
                                 <div className="bg-black/20 p-1 rounded-full flex items-center text-sm font-permanent-marker">
@@ -497,7 +498,7 @@ function App() {
                             
                             <div className="flex-shrink-0 flex items-center justify-center gap-4 py-6 z-20">
                                 <button onClick={handleReset} className={secondaryButtonClasses}>
-                                    Baştan Başla
+                                    Yeniden Dene
                                 </button>
                                 <button
                                     onClick={handleDownloadAlbum}
