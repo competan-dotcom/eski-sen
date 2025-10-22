@@ -21,6 +21,7 @@ interface PolaroidCardProps {
     onFeedback?: (caption: string, feedback: 'like' | 'unlike') => void;
     isMobile?: boolean;
     isDraggable?: boolean;
+    className?: string;
 }
 
 const LoadingSpinner = () => (
@@ -83,7 +84,7 @@ const RegeneratingOverlay = () => (
     </div>
 );
 
-const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, error, dragConstraintsRef, onShake, onDownload, feedback, onFeedback, isMobile, isDraggable }) => {
+const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, error, dragConstraintsRef, onShake, onDownload, feedback, onFeedback, isMobile, isDraggable, className }) => {
     const [isDeveloped, setIsDeveloped] = useState(false);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const lastShakeTime = useRef(0);
@@ -268,7 +269,10 @@ const PolaroidCard: React.FC<PolaroidCardProps> = ({ imageUrl, caption, status, 
     return (
         <DraggableCardContainer>
             <DraggableCardBody 
-                className="bg-neutral-100 dark:bg-neutral-100 !p-4 !pb-16 flex flex-col items-center justify-start aspect-[3/4] w-80 max-w-full"
+                className={cn(
+                    "bg-neutral-100 dark:bg-neutral-100 !p-4 !pb-16 flex flex-col items-center justify-start aspect-[3/4] w-80 max-w-full",
+                    className
+                )}
                 dragConstraintsRef={dragConstraintsRef}
                 onDragStart={handleDragStart}
                 onDrag={handleDrag}
