@@ -119,9 +119,7 @@ function App() {
             const file = e.target.files[0];
             const reader = new FileReader();
             reader.onloadend = () => {
-                setTimeout(() => {
-  setUploadedImage(reader.result as string);
-}, 0);
+                setUploadedImage(reader.result as string);
                 setAppState('image-uploaded');
                 setGeneratedImages({}); // Clear previous results
                 setFeedback({}); // Clear feedback as well
