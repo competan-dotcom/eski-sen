@@ -88,6 +88,7 @@ export const DraggableCardBody = ({
       ref={cardRef}
       drag={isDraggable}
       dragConstraints={dragConstraintsRef}
+      dragDirectionLock={true}
       dragTransition={{ bounceStiffness: 400, bounceDamping: 20 }}
       onDrag={onDrag}
       onDragStart={(event, info) => {
