@@ -236,12 +236,7 @@ function App() {
         // FIX: Cast image to GeneratedImage to resolve TypeScript error about 'unknown' type.
         const typedImage = image as GeneratedImage;
         if (typedImage && typedImage.status === 'done' && typedImage.url) {
-            const link = document.createElement('a');
-            link.href = typedImage.url;
-            link.download = `eski-sen-${decade}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+window.open(typedImage.url, '_blank');
         }
     };
 
@@ -266,12 +261,7 @@ function App() {
 
             const albumDataUrl = await createAlbumPage(imageData);
 
-            const link = document.createElement('a');
-            link.href = albumDataUrl;
-            link.download = 'eski-sen-album.jpg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+window.open(albumDataUrl, '_blank');
 
         } catch (error) {
             console.error("Failed to create or download album:", error);
